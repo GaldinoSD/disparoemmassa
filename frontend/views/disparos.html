@@ -165,14 +165,36 @@
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label for="message-template" class="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">Mensagem do WhatsApp</label>
-            <span class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Variáveis dinâmicas abaixo</span>
+            <!-- WhatsApp Formatting Toolbar -->
+            <div class="flex items-center gap-1.5 bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 rounded-lg px-2 py-0.5 select-none">
+              <button type="button" onclick="window.applyTextFormat('bold')" class="text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-white transition-colors px-1 text-[9px] cursor-pointer" title="Negrito (*texto*)">
+                <i class="fa-solid fa-bold"></i>
+              </button>
+              <span class="w-[1px] h-2.5 bg-slate-900/10 dark:bg-white/10"></span>
+              <button type="button" onclick="window.applyTextFormat('italic')" class="text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-white transition-colors px-1 text-[9px] cursor-pointer" title="Itálico (_texto_)">
+                <i class="fa-solid fa-italic"></i>
+              </button>
+              <span class="w-[1px] h-2.5 bg-slate-900/10 dark:bg-white/10"></span>
+              <button type="button" onclick="window.applyTextFormat('strike')" class="text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-white transition-colors px-1 text-[9px] cursor-pointer" title="Tachado (~texto~)">
+                <i class="fa-solid fa-strikethrough"></i>
+              </button>
+              <span class="w-[1px] h-2.5 bg-slate-900/10 dark:bg-white/10"></span>
+              <button type="button" onclick="window.applyTextFormat('monospace')" class="text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-white transition-colors px-1 text-[9px] cursor-pointer" title="Monoespaçado (```texto```)">
+                <i class="fa-solid fa-code"></i>
+              </button>
+            </div>
           </div>
-          <textarea id="message-template" required class="w-full rounded-xl p-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:border-purple-500/40 focus:ring-4 focus:ring-purple-500/15 transition-all font-semibold text-xs h-20 custom-scrollbar" placeholder="Olá {nome}! Temos uma novidade para você. Use o cupom {cupom}."></textarea>
+          <textarea id="message-template" required class="w-full rounded-xl p-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:border-purple-500/40 focus:ring-4 focus:ring-purple-500/15 transition-[border-color,box-shadow] duration-200 font-semibold text-xs min-h-[110px] h-28 resize-y custom-scrollbar" placeholder="Olá {nome}! Temos uma novidade para você. Use o cupom {cupom}."></textarea>
           
-          <div class="flex flex-wrap gap-1.5 mt-2">
-            <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{nome}">{nome}</span>
-            <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{cupom}">{cupom}</span>
-            <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{link}">{link}</span>
+          <div class="flex items-center justify-between mt-2 flex-wrap gap-2">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{nome}">{nome}</span>
+              <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{cupom}">{cupom}</span>
+              <span class="var-badge px-2.5 py-1 rounded-full border border-purple-500/20 hover:border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black tracking-tight cursor-pointer transition-all active:scale-95" data-variable="{link}">{link}</span>
+            </div>
+            <button type="button" onclick="window.openVariablesModal()" class="flex items-center gap-1.5 px-3 py-1 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold transition-all text-[9.5px] uppercase tracking-wider cursor-pointer">
+              <i class="fa-solid fa-sliders"></i> Configurar Variáveis
+            </button>
           </div>
         </div>
 
@@ -268,7 +290,7 @@
       </div>
 
       <!-- Phone Chat Area -->
-      <div class="phone-chat-area flex-1">
+      <div class="phone-chat-area flex-1 custom-scrollbar">
         <div id="preview-bubble" class="chat-bubble">
           Olá! Esta é uma demonstração do preview em tempo real. Digite sua mensagem no campo ao lado.
           <span class="time">17:34 <i class="fa-solid fa-check-double text-sky-500 text-[8px] ml-1"></i></span>
@@ -390,6 +412,58 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Variables Config Modal Overlay -->
+<div id="variables-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md items-center justify-center p-4 overflow-y-auto hidden">
+  <div class="card-premium max-w-md w-full p-6 animate-scale-up relative border border-purple-500/25 shadow-2xl text-slate-800 dark:text-white flex flex-col gap-4">
+    <!-- Close Button -->
+    <button type="button" onclick="window.closeVariablesModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 flex items-center justify-center border border-slate-900/5 dark:border-white/5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all cursor-pointer" title="Fechar">
+      <i class="fa-solid fa-xmark text-sm"></i>
+    </button>
+
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+          <i class="fa-solid fa-sliders text-xs"></i>
+        </div>
+        <h4 class="text-sm font-black text-slate-800 dark:text-white tracking-tight uppercase">Configurar Variáveis</h4>
+      </div>
+      <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-normal">Defina valores padrão ou edite as variáveis dinâmicas da campanha.</p>
+    </div>
+
+    <form id="variables-config-form" class="space-y-4 mt-2">
+      <!-- Nome Variable Readonly -->
+      <div class="bg-slate-900/5 dark:bg-black/15 border border-slate-900/5 dark:border-white/5 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">{nome}</label>
+          <span class="text-[8px] bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded font-black uppercase">Automático</span>
+        </div>
+        <input type="text" value="Puxado automaticamente do contato" readonly class="w-full rounded-xl px-3.5 py-2 border bg-slate-100/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 border-slate-900/5 dark:border-white/5 outline-none font-semibold text-xs cursor-not-allowed select-none">
+      </div>
+
+      <!-- Cupom Variable Edit -->
+      <div>
+        <label for="var-cupom" class="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1">Cupom Padrão ({cupom})</label>
+        <input type="text" id="var-cupom" class="w-full rounded-xl px-3.5 py-2 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:border-purple-500/40 focus:ring-2 focus:ring-purple-500/15 transition-all font-semibold text-xs" placeholder="Ex: CUPOM50">
+      </div>
+
+      <!-- Link Variable Edit -->
+      <div>
+        <label for="var-link" class="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-1">Link Padrão ({link})</label>
+        <input type="text" id="var-link" class="w-full rounded-xl px-3.5 py-2 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:border-purple-500/40 focus:ring-2 focus:ring-purple-500/15 transition-all font-semibold text-xs" placeholder="Ex: https://seusite.com/oferta">
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="window.closeVariablesModal()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold active:scale-[0.98] transition-all text-[10px] uppercase tracking-wider cursor-pointer">
+          Cancelar
+        </button>
+        <button type="submit" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl font-black shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 active:scale-[0.98] transition-all text-[10px] uppercase tracking-wider cursor-pointer">
+          Salvar
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 

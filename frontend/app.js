@@ -101,6 +101,8 @@ async function startApp() {
     logs: [],
     logsVisibleCount: 20,
     contacts: [],
+    defaultCupom: localStorage.getItem('zapflow_default_cupom') || 'DESCONTO50',
+    defaultLink: localStorage.getItem('zapflow_default_link') || 'https://sorteio.link/zapflow',
     activeCampaign: null,
     stats: {
       total: 0,
@@ -894,6 +896,95 @@ async function startApp() {
 
   // --- DISPARADOR & CAMPAIGNS CORE ENGINE ---
   
+  // --- MODAL DE CONFIGURAÇÃO DE VARIÁVEIS ---
+  window.openVariablesModal = () => {
+    const modal = document.getElementById('variables-modal');
+    const cupomField = document.getElementById('var-cupom');
+    const linkField = document.getElementById('var-link');
+    
+    if (cupomField) cupomField.value = state.defaultCupom || '';
+    if (linkField) linkField.value = state.defaultLink || '';
+    
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  };
+
+  window.closeVariablesModal = () => {
+    const modal = document.getElementById('variables-modal');
+    if (modal) {
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+  };
+
+  document.addEventListener('submit', (e) => {
+    if (e.target.id === 'variables-config-form') {
+      e.preventDefault();
+      const cupomVal = document.getElementById('var-cupom').value.trim();
+      const linkVal = document.getElementById('var-link').value.trim();
+      
+      state.defaultCupom = cupomVal;
+      state.defaultLink = linkVal;
+      
+      localStorage.setItem('zapflow_default_cupom', cupomVal);
+      localStorage.setItem('zapflow_default_link', linkVal);
+      
+      showToast('Variáveis salvas com sucesso!', 'success');
+      window.closeVariablesModal();
+      updateLivePreview();
+    }
+  });
+
+  window.applyTextFormat = (formatType) => {
+    const textarea = document.getElementById('message-template');
+    if (!textarea) return;
+
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(startPos, endPos);
+
+    let formatCharStart = '';
+    let formatCharEnd = '';
+
+    switch (formatType) {
+      case 'bold':
+        formatCharStart = '*';
+        formatCharEnd = '*';
+        break;
+      case 'italic':
+        formatCharStart = '_';
+        formatCharEnd = '_';
+        break;
+      case 'strike':
+        formatCharStart = '~';
+        formatCharEnd = '~';
+        break;
+      case 'monospace':
+        formatCharStart = '```';
+        formatCharEnd = '```';
+        break;
+    }
+
+    const replacement = formatCharStart + selectedText + formatCharEnd;
+    textarea.value = text.substring(0, startPos) + replacement + text.substring(endPos, text.length);
+    
+    // Recalcular posições de cursor para manter seleção ou colocar cursor no meio
+    textarea.focus();
+    if (startPos === endPos) {
+      // Se não havia seleção, coloca o cursor entre os caracteres de formatação
+      const newCursorPos = startPos + formatCharStart.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    } else {
+      // Se havia seleção, mantém a nova palavra formatada selecionada
+      textarea.setSelectionRange(startPos, startPos + replacement.length);
+    }
+
+    updateLivePreview();
+  };
+  
   // Usar escuta global delegada de eventos para os elementos das views carregadas dinamicamente
   document.addEventListener('input', (e) => {
     if (e.target.id === 'message-template') {
@@ -911,8 +1002,8 @@ async function startApp() {
     // Safely replace standard variables
     text = text
       .replace(/{nome}/g, 'João Silva')
-      .replace(/{cupom}/g, 'DESCONTO50')
-      .replace(/{link}/g, 'https://sorteio.link/zapflow')
+      .replace(/{cupom}/g, state.defaultCupom || 'DESCONTO50')
+      .replace(/{link}/g, state.defaultLink || 'https://sorteio.link/zapflow')
       .replace(/{premio}/g, 'Vale Presente')
       .replace(/{resultado}/g, 'Aprovado');
 
@@ -941,6 +1032,12 @@ async function startApp() {
     }
 
     bubble.innerHTML = `${text}<span class="flex items-center justify-end gap-1 text-[7px] text-slate-500/80 dark:text-white/40 mt-1 font-mono">${timeStr} <i class="fa-solid fa-check-double text-sky-500 text-[8px]"></i></span>`;
+
+    // Auto-scroll phone simulator to bottom
+    const chatArea = bubble.closest('.phone-chat-area');
+    if (chatArea) {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
   }
 
   // Clique em badges das variáveis
@@ -1147,6 +1244,12 @@ async function startApp() {
       }
 
       bubble.innerHTML = `${text}<span class="flex items-center justify-end gap-1 text-[7px] text-slate-500/80 dark:text-white/40 mt-1 font-mono">${timeStr} <i class="fa-solid fa-check-double text-sky-500 text-[8px]"></i></span>`;
+
+      // Auto-scroll phone simulator to bottom
+      const chatArea = bubble.closest('.phone-chat-area');
+      if (chatArea) {
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
     }
   }
 
@@ -1383,8 +1486,8 @@ async function startApp() {
 
     const finalMsg = template
       .replace(/{nome}/g, contact.nome)
-      .replace(/{cupom}/g, contact.cupom || '')
-      .replace(/{link}/g, contact.link || '');
+      .replace(/{cupom}/g, contact.cupom && contact.cupom !== 'ZAPFLOW' ? contact.cupom : (state.defaultCupom || ''))
+      .replace(/{link}/g, contact.link ? contact.link : (state.defaultLink || ''));
 
     // Atualiza o simulador em tempo real
     updateSimulatorPreview(contact.nome, finalMsg);
