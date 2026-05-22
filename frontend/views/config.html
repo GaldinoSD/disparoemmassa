@@ -1,0 +1,146 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  
+  <!-- Configurações de Fundo (Backgrounds) -->
+  <div class="card-premium p-6 md:p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+          <i class="fa-solid fa-image text-sm"></i>
+        </div>
+        <h3 class="text-sm font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200">Fundos da Tela de Login</h3>
+      </div>
+
+      <form id="visual-bg-form" class="space-y-6">
+        <!-- Desktop Background -->
+        <div>
+          <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Imagem de Fundo - Desktop</label>
+          <div class="space-y-3">
+            <input type="text" id="visual-bg-desktop-url" class="w-full rounded-2xl px-5 py-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all font-semibold" placeholder="URL da imagem ou faça upload abaixo...">
+            
+            <div class="flex items-center gap-3">
+              <label for="visual-bg-desktop-file" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer text-slate-600 dark:text-slate-300">
+                <i class="fa-solid fa-cloud-arrow-up text-indigo-500"></i> Escolher Arquivo
+              </label>
+              <input type="file" id="visual-bg-desktop-file" accept="image/*" class="hidden">
+              <button type="button" onclick="window.clearVisualField('visual-bg-desktop')" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer">
+                Remover
+              </button>
+            </div>
+            
+            <div class="relative w-full h-32 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 overflow-hidden flex items-center justify-center">
+              <div id="preview-bg-desktop-empty" class="absolute text-center text-slate-400 dark:text-slate-600 select-none">
+                <i class="fa-regular fa-image text-2xl mb-1"></i>
+                <p class="text-[9px] font-black uppercase tracking-wider">Sem Imagem</p>
+              </div>
+              <img id="preview-bg-desktop" class="w-full h-full object-cover hidden" alt="Preview Desktop Background">
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Background -->
+        <div>
+          <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Imagem de Fundo - Mobile</label>
+          <div class="space-y-3">
+            <input type="text" id="visual-bg-mobile-url" class="w-full rounded-2xl px-5 py-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all font-semibold" placeholder="URL da imagem ou faça upload abaixo...">
+            
+            <div class="flex items-center gap-3">
+              <label for="visual-bg-mobile-file" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer text-slate-600 dark:text-slate-300">
+                <i class="fa-solid fa-cloud-arrow-up text-indigo-500"></i> Escolher Arquivo
+              </label>
+              <input type="file" id="visual-bg-mobile-file" accept="image/*" class="hidden">
+              <button type="button" onclick="window.clearVisualField('visual-bg-mobile')" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer">
+                Remover
+              </button>
+            </div>
+            
+            <div class="relative w-full h-32 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 overflow-hidden flex items-center justify-center">
+              <div id="preview-bg-mobile-empty" class="absolute text-center text-slate-400 dark:text-slate-600 select-none">
+                <i class="fa-regular fa-image text-2xl mb-1"></i>
+                <p class="text-[9px] font-black uppercase tracking-wider">Sem Imagem</p>
+              </div>
+              <img id="preview-bg-mobile" class="w-full h-full object-cover hidden" alt="Preview Mobile Background">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Configurações de Logo -->
+  <div class="card-premium p-6 md:p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center">
+          <i class="fa-solid fa-circle-nodes text-sm"></i>
+        </div>
+        <h3 class="text-sm font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200">Logotipos Personalizados</h3>
+      </div>
+
+      <form id="visual-logo-form" class="space-y-6">
+        <!-- Login Logo -->
+        <div>
+          <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Logo da Tela de Login</label>
+          <div class="space-y-3">
+            <input type="text" id="visual-logo-login-url" class="w-full rounded-2xl px-5 py-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="URL da logo ou faça upload abaixo...">
+            
+            <div class="flex items-center gap-3">
+              <label for="visual-logo-login-file" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer text-slate-600 dark:text-slate-300">
+                <i class="fa-solid fa-cloud-arrow-up text-purple-500"></i> Escolher Arquivo
+              </label>
+              <input type="file" id="visual-logo-login-file" accept="image/*" class="hidden">
+              <button type="button" onclick="window.clearVisualField('visual-logo-login')" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer">
+                Remover
+              </button>
+            </div>
+            
+            <div class="relative w-full h-24 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 overflow-hidden flex items-center justify-center p-4">
+              <div id="preview-logo-login-empty" class="absolute text-center text-slate-400 dark:text-slate-600 select-none">
+                <i class="fa-solid fa-eye-slash text-xl mb-1"></i>
+                <p class="text-[9px] font-black uppercase tracking-wider">Sem Logo (Exibirá Texto)</p>
+              </div>
+              <img id="preview-logo-login" class="max-w-full max-h-full object-contain hidden" alt="Preview Login Logo">
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Logo -->
+        <div>
+          <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Logo do Sidebar (Painel Lateral)</label>
+          <div class="space-y-3">
+            <input type="text" id="visual-logo-sidebar-url" class="w-full rounded-2xl px-5 py-3 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="URL da logo ou faça upload abaixo...">
+            
+            <div class="flex items-center gap-3">
+              <label for="visual-logo-sidebar-file" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-900/5 dark:border-white/5 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer text-slate-600 dark:text-slate-300">
+                <i class="fa-solid fa-cloud-arrow-up text-purple-500"></i> Escolher Arquivo
+              </label>
+              <input type="file" id="visual-logo-sidebar-file" accept="image/*" class="hidden">
+              <button type="button" onclick="window.clearVisualField('visual-logo-sidebar')" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl font-bold transition-all text-[11px] uppercase tracking-wider cursor-pointer">
+                Remover
+              </button>
+            </div>
+            
+            <div class="relative w-full h-24 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 overflow-hidden flex items-center justify-center p-4">
+              <div id="preview-logo-sidebar-empty" class="absolute text-center text-slate-400 dark:text-slate-600 select-none">
+                <i class="fa-solid fa-eye-slash text-xl mb-1"></i>
+                <p class="text-[9px] font-black uppercase tracking-wider">Sem Logo (Exibirá Texto)</p>
+              </div>
+              <img id="preview-logo-sidebar" class="max-w-full max-h-full object-contain hidden" alt="Preview Sidebar Logo">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Action Bar (Salvar tudo) -->
+<div class="card-premium p-6 md:p-8 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <div class="text-left">
+    <h4 class="text-xs font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200 mb-1">Branding e Identidade Visual</h4>
+    <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Lembre-se: O upload local salvará as imagens diretamente em seu banco de dados local.</p>
+  </div>
+  <button id="btn-save-visual" class="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 active:scale-[0.98] transition-all text-xs uppercase tracking-wider cursor-pointer">
+    <i class="fa-solid fa-floppy-disk"></i> Salvar Identidade Visual
+  </button>
+</div>

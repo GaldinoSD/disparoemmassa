@@ -1,0 +1,48 @@
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+  
+  <!-- Configurações do Disparo -->
+  <div class="card-premium p-6 md:p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+          <i class="fa-solid fa-paper-plane text-sm"></i>
+        </div>
+        <h3 class="text-sm font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200">Parâmetros do Disparo</h3>
+      </div>
+
+      <form id="campaign-form" class="space-y-5">
+        <div>
+          <label for="camp-name" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Nome da Campanha</label>
+          <input type="text" id="camp-name" required class="w-full rounded-2xl px-5 py-3.5 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="Ex: Promoção Dia dos Namorados">
+        </div>
+
+        <div>
+          <label for="camp-type" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Categoria do Disparo</label>
+          <select id="camp-type" class="w-full rounded-2xl px-5 py-3.5 border bg-white dark:bg-slate-850 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:
+      <div id="progress-bar-fill" class="h-full w-0 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-300"></div>
+    </div>
+
+    <div class="flex gap-4 mb-6">
+      <button id="btn-pause-campaign" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-900/5 dark:border-white/5 rounded-2xl font-black active:scale-[0.98] transition-all text-xs uppercase tracking-wider cursor-pointer">
+        <i class="fa-solid fa-pause"></i> Pausar
+      </button>
+      <button id="btn-cancel-campaign" class="flex-1 flex items-center justify-center gap-2 px-5 py-3 border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-600 rounded-2xl font-black active:scale-[0.98] transition-all text-xs uppercase tracking-wider cursor-pointer">
+        <i class="fa-solid fa-circle-xmark"></i> Cancelar
+      </button>
+    </div>
+
+    <!-- Console Console panel -->
+    <div class="bg-slate-950 border border-slate-900 dark:border-white/5 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-3 border-b border-slate-900 pb-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-2 font-mono">Console Logs</span>
+      </div>
+      <div id="console-logs" class="h-40 overflow-y-auto text-[11px] font-mono text-emerald-400 space-y-1.5 custom-scrollbar pr-2 leading-relaxed">
+        <div class="text-slate-500">[Console] Inicializando motor de disparos...</div>
+      </div>
+    </div>
+  </div>
+
+</div>

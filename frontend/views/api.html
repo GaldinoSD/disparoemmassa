@@ -1,0 +1,70 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  
+  <!-- Configurações API Form -->
+  <div class="card-premium p-6 md:p-8 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+          <i class="fa-solid fa-gears text-sm"></i>
+        </div>
+        <h3 class="text-sm font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200">Parâmetros da Evolution API</h3>
+      </div>
+
+      <form id="api-config-form" class="space-y-5">
+        <div>
+          <label for="api-url" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">URL Base da API</label>
+          <input type="text" id="api-url" required class="w-full rounded-2xl px-5 py-3.5 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="https://api.seudominio.com">
+        </div>
+
+        <div>
+          <label for="api-key" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Token Global (ApiKey)</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+              <i class="fa-solid fa-key"></i>
+            </div>
+            <input type="password" id="api-key" required class="w-full rounded-2xl pl-11 pr-4 py-3.5 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="Seu token global da Evolution">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="api-instance" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Instância</label>
+            <input type="text" id="api-instance" required class="w-full rounded-2xl px-5 py-3.5 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="Ex: ZAPFLOW_01">
+          </div>
+
+          <div>
+            <label for="api-instance-token" class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-2">Token da Instância (Opcional)</label>
+            <input type="password" id="api-instance-token" class="w-full rounded-2xl px-5 py-3.5 border bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white border-slate-900/5 dark:border-white/5 outline-none focus:ring-4 focus:ring-purple-500/20 transition-all font-semibold" placeholder="Gerado automaticamente">
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <button type="button" id="btn-test-connection" class="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-900/5 dark:border-white/5 rounded-2xl font-black active:scale-[0.98] transition-all text-xs uppercase tracking-wider cursor-pointer">
+            <i class="fa-solid fa-arrows-spin"></i> Testar Conexão
+          </button>
+          <button type="submit" id="btn-save-instance" class="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 active:scale-[0.98] transition-all text-xs uppercase tracking-wider cursor-pointer">
+            <i class="fa-solid fa-floppy-disk"></i> Salvar e Conectar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Status Box -->
+  <div class="card-premium p-6 md:p-8 flex flex-col justify-between min-h-[350px]">
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+          <i class="fa-solid fa-satellite-dish text-sm"></i>
+        </div>
+        <h3 class="text-sm font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-200">Status do WhatsApp</h3>
+      </div>
+
+      <div id="instance-status-box" class="flex flex-col items-center justify-center text-center p-6 bg-slate-900/5 dark:bg-white/5 border border-dashed border-slate-900/10 dark:border-white/10 rounded-2xl min-h-[220px]">
+        <i class="fa-solid fa-mobile-screen text-4xl text-slate-300 dark:text-slate-600 mb-4"></i>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold max-w-sm">Nenhuma instância ativa carregada. Insira suas credenciais e salve para autenticar o WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
