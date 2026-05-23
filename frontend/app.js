@@ -1293,6 +1293,8 @@ async function startApp() {
     currentIndex: 0,
     contactsList: [],
     timer: null,
+    countdownInterval: null,
+    campaignObject: null,
     batchSize: 40,
     batchPause: 30
   };
@@ -1355,6 +1357,9 @@ async function startApp() {
       const batchSize = parseInt(document.getElementById('batch-size').value) || 40;
       const batchPause = parseInt(document.getElementById('batch-pause').value) || 30;
       const msgTemplate = document.getElementById('message-template').value;
+      
+      // Salva a mensagem configurada para o painel geral
+      localStorage.setItem('lastMessageTemplate', msgTemplate);
       const manualVal = document.getElementById('manual-contacts').value;
 
       const contatosAEnviar = parseContactsFromInput(manualVal);
@@ -1412,9 +1417,26 @@ async function startApp() {
           campaignRunner.contactsList = contatosAEnviar;
           campaignRunner.batchSize = batchSize;
           campaignRunner.batchPause = batchPause;
+          campaignRunner.countdownInterval = null;
+          campaignRunner.campaignObject = campaignCreated;
 
           // Inicializa as telemetrias
           updateLiveTelemetry(campaignCreated, delay);
+
+          // Exibe o banner de campanha na aba de conversas
+          const convBanner = document.getElementById('conversas-campaign-banner');
+          if (convBanner) {
+            convBanner.classList.remove('hidden');
+            convBanner.classList.add('flex');
+            
+            const convCampName = document.getElementById('conversas-banner-camp-name');
+            const convProgress = document.getElementById('conversas-banner-progress');
+            const convPercent = document.getElementById('conversas-banner-percent');
+            
+            if (convCampName) convCampName.textContent = `Campanha: ${campName}`;
+            if (convProgress) convProgress.textContent = `0 / ${contatosAEnviar.length}`;
+            if (convPercent) convPercent.textContent = `0% concluído`;
+          }
 
           runNextSend(delay, msgTemplate, campaignCreated);
         }
@@ -1440,44 +1462,17 @@ async function startApp() {
       const details = document.getElementById('progress-details');
       if (details) details.textContent = 'Campanha concluída com sucesso!';
       
+      // Esconde o banner de campanha na aba de conversas
+      const convBanner = document.getElementById('conversas-campaign-banner');
+      if (convBanner) {
+        convBanner.classList.remove('flex');
+        convBanner.classList.add('hidden');
+      }
+
       // Atualizar progresso final no SQLite
       await updateCampaignOnBackend(campObj.id, campObj.sucesso, campObj.falhas, 'Concluído');
       await fetchCampaignsAndLogs();
       showToast('Campanha de disparos concluída!', 'success');
-      return;
-    }
-
-    // RATE LIMITING: Verificar se atingiu o limite do lote atual
-    const { batchSize, batchPause } = campaignRunner;
-    if (campaignRunner.currentIndex > 0 && campaignRunner.currentIndex % batchSize === 0) {
-      const loteAtual = Math.floor(campaignRunner.currentIndex / batchSize);
-      const totalLotes = Math.ceil(campaignRunner.contactsList.length / batchSize);
-      writeConsoleLog(`⏸ Lote ${loteAtual}/${totalLotes} concluído (${batchSize} envios). Aguardando ${batchPause}s antes do próximo lote...`, 'warning');
-      
-      const details2 = document.getElementById('progress-details');
-      if (details2) details2.textContent = `Pausa entre lotes — Lote ${loteAtual}/${totalLotes} (${batchPause}s restantes)`;
-      
-      showToast(`Lote ${loteAtual} concluído. Pausa de ${batchPause}s anti-ban...`, 'info');
-
-      // Countdown visual no console e telemetria
-      let countdown = batchPause;
-      const batchValEl = document.getElementById('telemetry-batch-val');
-      const batchDescEl = document.getElementById('telemetry-batch-desc');
-      if (batchValEl) batchValEl.textContent = 'PAUSA';
-      if (batchDescEl) batchDescEl.textContent = `Aguardando ${countdown}s...`;
-
-      const countdownInterval = setInterval(() => {
-        countdown--;
-        const d = document.getElementById('progress-details');
-        if (d && countdown > 0) d.textContent = `Pausa entre lotes — Lote ${loteAtual}/${totalLotes} (${countdown}s restantes)`;
-        if (batchDescEl && countdown > 0) batchDescEl.textContent = `Retomando em ${countdown}s`;
-      }, 1000);
-
-      campaignRunner.timer = setTimeout(() => {
-        clearInterval(countdownInterval);
-        writeConsoleLog(`▶ Retomando envios — Lote ${loteAtual + 1}/${totalLotes}...`, 'info');
-        runNextSend(delay, template, campObj);
-      }, batchPause * 1000);
       return;
     }
 
@@ -1521,8 +1516,10 @@ async function startApp() {
     // Atualizar campanha corrente no banco a cada disparo
     await updateCampaignOnBackend(campObj.id, campObj.sucesso, campObj.falhas, 'Rodando');
 
-    // Atualizar UI
+    // Incrementar índice
     campaignRunner.currentIndex++;
+
+    // Atualizar UI
     const percent = Math.round((campaignRunner.currentIndex / campaignRunner.contactsList.length) * 100);
     
     const pct = document.getElementById('progress-percent');
@@ -1536,9 +1533,29 @@ async function startApp() {
     if (details) details.textContent = `Enviados: ${campObj.sucesso} | Falhas: ${campObj.falhas}`;
 
     // Informação de lote na barra de progresso
-    const currentBatch = Math.floor(campaignRunner.currentIndex / campaignRunner.batchSize) + 1;
+    const currentBatch = Math.floor((campaignRunner.currentIndex - 1) / campaignRunner.batchSize) + 1;
     const totalBatches = Math.ceil(campaignRunner.contactsList.length / campaignRunner.batchSize);
     if (details) details.textContent = `Lote ${currentBatch}/${totalBatches} | Enviados: ${campObj.sucesso} | Falhas: ${campObj.falhas}`;
+
+    // Atualizar o banner de campanha na aba de conversas
+    const convBanner = document.getElementById('conversas-campaign-banner');
+    if (convBanner) {
+      if (campaignRunner.isRunning) {
+        convBanner.classList.remove('hidden');
+        convBanner.classList.add('flex');
+        
+        const convCampName = document.getElementById('conversas-banner-camp-name');
+        const convProgress = document.getElementById('conversas-banner-progress');
+        const convPercent = document.getElementById('conversas-banner-percent');
+        
+        if (convCampName) convCampName.textContent = `Campanha: ${campObj.name}`;
+        if (convProgress) convProgress.textContent = `${campaignRunner.currentIndex} / ${campaignRunner.contactsList.length}`;
+        if (convPercent) convPercent.textContent = `${percent}% concluído`;
+      } else {
+        convBanner.classList.remove('flex');
+        convBanner.classList.add('hidden');
+      }
+    }
 
     // Atualizar os cartões de telemetria em tempo real
     updateLiveTelemetry(campObj, delay);
@@ -1546,10 +1563,53 @@ async function startApp() {
     // Sincronizar o progresso no FAB pulsante caso o modal esteja fechado/minimizado
     syncProgressPanelState();
 
-    // Loop — próximo envio individual
-    campaignRunner.timer = setTimeout(() => {
-      runNextSend(delay, template, campObj);
-    }, delay * 1000);
+    // RATE LIMITING: Verificar se atingiu o limite do lote atual e ainda restam contatos
+    const { batchSize, batchPause } = campaignRunner;
+    if (campaignRunner.currentIndex < campaignRunner.contactsList.length && campaignRunner.currentIndex % batchSize === 0) {
+      const loteAtual = Math.floor(campaignRunner.currentIndex / batchSize);
+      const totalLotes = Math.ceil(campaignRunner.contactsList.length / batchSize);
+      writeConsoleLog(`⏸ Lote ${loteAtual}/${totalLotes} concluído (${batchSize} envios). Aguardando ${batchPause}s antes do próximo lote...`, 'warning');
+      
+      const details2 = document.getElementById('progress-details');
+      if (details2) details2.textContent = `Pausa entre lotes — Lote ${loteAtual}/${totalLotes} (${batchPause}s restantes)`;
+      
+      showToast(`Lote ${loteAtual} concluído. Pausa de ${batchPause}s anti-ban...`, 'info');
+
+      // Countdown visual no console e telemetria
+      let countdown = batchPause;
+      const batchValEl = document.getElementById('telemetry-batch-val');
+      const batchDescEl = document.getElementById('telemetry-batch-desc');
+      if (batchValEl) batchValEl.textContent = 'PAUSA';
+      if (batchDescEl) batchDescEl.textContent = `Aguardando ${countdown}s...`;
+
+      campaignRunner.countdownInterval = setInterval(() => {
+        countdown--;
+        const d = document.getElementById('progress-details');
+        if (d && countdown > 0) d.textContent = `Pausa entre lotes — Lote ${loteAtual}/${totalLotes} (${countdown}s restantes)`;
+        if (batchDescEl && countdown > 0) batchDescEl.textContent = `Retomando em ${countdown}s`;
+      }, 1000);
+
+      campaignRunner.timer = setTimeout(() => {
+        if (campaignRunner.countdownInterval) {
+          clearInterval(campaignRunner.countdownInterval);
+          campaignRunner.countdownInterval = null;
+        }
+        
+        // Atualiza UI de progresso imediatamente ao retomar
+        const d = document.getElementById('progress-details');
+        const batchDescEl = document.getElementById('telemetry-batch-desc');
+        if (d) d.textContent = `Preparando mensagens — Lote ${loteAtual + 1}/${totalLotes}...`;
+        if (batchDescEl) batchDescEl.textContent = `Retomando...`;
+
+        writeConsoleLog(`▶ Retomando envios — Lote ${loteAtual + 1}/${totalLotes}...`, 'info');
+        runNextSend(delay, template, campObj);
+      }, batchPause * 1000);
+    } else {
+      // Loop normal — próximo envio individual
+      campaignRunner.timer = setTimeout(() => {
+        runNextSend(delay, template, campObj);
+      }, delay * 1000);
+    }
   }
 
   // Salvar LOG no backend SQLite
@@ -1654,10 +1714,18 @@ async function startApp() {
         
         const delay = parseInt(document.getElementById('send-delay').value) || 5;
         const msgTemplate = document.getElementById('message-template').value;
-        const currentCamp = state.campaigns[0];
+        const currentCamp = campaignRunner.campaignObject;
         runNextSend(delay, msgTemplate, currentCamp);
       } else {
         campaignRunner.isPaused = true;
+        if (campaignRunner.timer) {
+          clearTimeout(campaignRunner.timer);
+          campaignRunner.timer = null;
+        }
+        if (campaignRunner.countdownInterval) {
+          clearInterval(campaignRunner.countdownInterval);
+          campaignRunner.countdownInterval = null;
+        }
         pauseBtn.innerHTML = '<i class="fa-solid fa-play"></i> Retomar';
         writeConsoleLog('Campanha pausada pelo usuário. Aguardando...', 'warning');
         showToast('Campanha pausada.', 'warning');
@@ -1667,7 +1735,14 @@ async function startApp() {
     const cancelBtn = e.target.closest('#btn-cancel-campaign');
     if (cancelBtn) {
       if (confirm('Deseja realmente cancelar esta campanha?')) {
-        if (campaignRunner.timer) clearTimeout(campaignRunner.timer);
+        if (campaignRunner.timer) {
+          clearTimeout(campaignRunner.timer);
+          campaignRunner.timer = null;
+        }
+        if (campaignRunner.countdownInterval) {
+          clearInterval(campaignRunner.countdownInterval);
+          campaignRunner.countdownInterval = null;
+        }
         campaignRunner.isRunning = false;
         campaignRunner.isPaused = false;
         syncProgressPanelState();
@@ -1676,7 +1751,14 @@ async function startApp() {
         const details = document.getElementById('progress-details');
         if (details) details.textContent = 'Campanha cancelada.';
         
-        const currentCamp = state.campaigns[0];
+        // Esconde o banner de campanha na aba de conversas
+        const convBanner = document.getElementById('conversas-campaign-banner');
+        if (convBanner) {
+          convBanner.classList.remove('flex');
+          convBanner.classList.add('hidden');
+        }
+
+        const currentCamp = campaignRunner.campaignObject;
         if (currentCamp) {
           await updateCampaignOnBackend(currentCamp.id, currentCamp.sucesso, currentCamp.falhas, 'Cancelado');
           await fetchCampaignsAndLogs();
@@ -1726,10 +1808,91 @@ async function startApp() {
     const falEl = document.getElementById('stat-falhas');
     const instEl = document.getElementById('stat-instancias');
 
-    if (totalEl) totalEl.textContent = state.stats.total;
-    if (sucEl) sucEl.textContent = state.stats.sucesso;
-    if (falEl) falEl.textContent = state.stats.falhas;
+    const total = state.stats.total || 0;
+    const sucesso = state.stats.sucesso || 0;
+    const falhas = state.stats.falhas || 0;
+
+    if (totalEl) totalEl.textContent = total;
+    if (sucEl) sucEl.textContent = sucesso;
+    if (falEl) falEl.textContent = falhas;
     if (instEl) instEl.textContent = state.stats.instancias;
+
+    // 1. Taxa de Entrega Gauge (Circular SVG com Sucesso em verde e Falha em vermelho)
+    const percentEl = document.getElementById('delivery-rate-percent');
+    const circleEl = document.getElementById('dashboard-delivery-circle');
+    const successRate = total > 0 ? Math.round((sucesso / total) * 100) : 0;
+    const failRate = total > 0 ? 100 - successRate : 0;
+
+    if (percentEl) percentEl.textContent = `${successRate}%`;
+    
+    // Atualiza os badges da legenda (Sucesso e Falha)
+    const successBadgeEl = document.getElementById('delivery-success-percent-badge');
+    const failBadgeEl = document.getElementById('delivery-fail-percent-badge');
+    if (successBadgeEl) successBadgeEl.textContent = `${successRate}%`;
+    if (failBadgeEl) failBadgeEl.textContent = `${failRate}%`;
+
+    if (circleEl) {
+      const backgroundCircle = circleEl.previousElementSibling;
+      if (backgroundCircle) {
+        if (total > 0) {
+          // O fundo do círculo representa a falha (vermelho)
+          backgroundCircle.style.color = '#ef4444';
+          backgroundCircle.classList.remove('text-slate-100', 'dark:text-slate-800/60');
+        } else {
+          // Cinza padrão se não houver disparos
+          backgroundCircle.style.color = '';
+          backgroundCircle.classList.add('text-slate-100', 'dark:text-slate-800/60');
+        }
+      }
+      const offset = 251.2 - (successRate / 100) * 251.2;
+      circleEl.style.strokeDashoffset = offset;
+    }
+
+    // 2. Última Mensagem Configurada
+    const msgEl = document.getElementById('dashboard-last-message');
+    if (msgEl) {
+      const lastMsg = localStorage.getItem('lastMessageTemplate') || 'Olá! Esta é uma demonstração do preview em tempo real. Digite sua mensagem no campo ao lado.';
+      msgEl.textContent = lastMsg;
+    }
+
+    // 3. Últimos 5 Disparos (Feed de logs em tempo real)
+    const dispatchesBox = document.getElementById('dashboard-recent-dispatches');
+    if (dispatchesBox) {
+      if (state.logs.length === 0) {
+        dispatchesBox.innerHTML = `
+          <div class="flex items-center justify-center p-8 text-slate-400">
+            <div class="text-center">
+              <i class="fa-solid fa-clock-rotate-left text-3xl mb-2 opacity-50"></i>
+              <p class="text-xs font-bold uppercase tracking-wider">Nenhum disparo recente</p>
+            </div>
+          </div>
+        `;
+      } else {
+        dispatchesBox.innerHTML = [...state.logs.slice(0, 5)].reverse().map(log => {
+          const statusColors = {
+            'Sucesso': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+            'Falha': 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+          };
+          const statusBadge = statusColors[log.status] || 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20';
+          const icon = log.status === 'Sucesso' ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-solid fa-triangle-exclamation text-rose-500';
+
+          return `
+            <div class="flex items-center justify-between p-3.5 bg-slate-900/5 dark:bg-white/5 border border-slate-900/5 dark:border-white/5 rounded-2xl group hover:border-emerald-500/30 transition-all duration-300">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-550 dark:text-slate-400 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200/50 dark:border-white/5">
+                  <i class="${icon} text-xs"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-black text-slate-800 dark:text-white truncate uppercase tracking-tight">${log.contact} (${log.phone})</div>
+                  <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5 truncate max-w-[250px]">${log.message}</div>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${statusBadge} shrink-0">${log.status}</span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
   }
 
   function renderRecentCampaigns() {
@@ -1961,13 +2124,13 @@ async function startApp() {
 
       const isSelected = activeChatId === chat.id;
       const activeClass = isSelected 
-        ? 'bg-emerald-500/10 dark:bg-emerald-500/5 border-emerald-500/30' 
+        ? 'bg-emerald-500/10 dark:bg-emerald-500/5 border-emerald-500/30 active-chat' 
         : 'bg-white dark:bg-white/5 border-slate-200/50 dark:border-white/5';
 
       return `
         <div onclick="window.selectChat('${chat.id}', '${name.replace(/'/g, "\\'")}', '${avatar}', '${phone}')" 
-             class="flex items-center gap-3.5 p-3.5 ${activeClass} hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl border cursor-pointer transition-all duration-300 group select-none">
-          <div class="w-11 h-11 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/20 group-hover:scale-105 transition-all">
+             class="flex items-center gap-3.5 p-3.5 ${activeClass} sidebar-premium-item animate-slide-up-item hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl border cursor-pointer transition-all duration-300 group select-none">
+          <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/20 group-hover:scale-105 transition-all">
             ${avatar !== '-' ? `<img src="${avatar}" class="w-full h-full object-cover rounded-lg">` : name.substring(0, 2).toUpperCase()}
           </div>
           <div class="flex-1 min-w-0">
@@ -1995,9 +2158,9 @@ async function startApp() {
     const chatItems = document.querySelectorAll('#contactsList > div[onclick]');
     chatItems.forEach(item => {
       if (item.getAttribute('onclick').includes(chatId)) {
-        item.className = 'flex items-center gap-3.5 p-3.5 bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/10 rounded-xl border border-emerald-500/30 cursor-pointer transition-all duration-300 group';
+        item.className = 'flex items-center gap-3.5 p-3.5 bg-emerald-500/10 dark:bg-emerald-500/5 hover:bg-emerald-500/10 rounded-xl border border-emerald-500/30 active-chat sidebar-premium-item cursor-pointer transition-all duration-300 group';
       } else {
-        item.className = 'flex items-center gap-3.5 p-3.5 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl border border-slate-200/50 dark:border-white/5 cursor-pointer transition-all duration-300 group';
+        item.className = 'flex items-center gap-3.5 p-3.5 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-xl border border-slate-200/50 dark:border-white/5 sidebar-premium-item cursor-pointer transition-all duration-300 group';
       }
     });
 
@@ -2105,17 +2268,17 @@ async function startApp() {
 
           if (isFromMe) {
             htmlContent += `
-              <div class="flex justify-end">
-                <div class="max-w-[70%] bg-emerald-600 dark:bg-emerald-600/90 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-sm text-xs relative group">
+              <div class="flex justify-end animate-slide-up-item my-1.5">
+                <div class="max-w-[70%] bubble-sent-premium px-4 py-2.5 shadow-sm text-xs relative group">
                   ${messageBody}
-                  <span class="flex items-center justify-end gap-1 text-[7px] text-white/60 mt-1 font-mono">${timeStr} <i class="fa-solid fa-check-double text-sky-300 text-[8px]"></i></span>
+                  <span class="flex items-center justify-end gap-1 text-[7px] text-white/70 mt-1 font-mono">${timeStr} <i class="fa-solid fa-check-double text-emerald-200 text-[8px]"></i></span>
                 </div>
               </div>
             `;
           } else {
             htmlContent += `
-              <div class="flex justify-start">
-                <div class="max-w-[70%] bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm text-xs relative">
+              <div class="flex justify-start animate-slide-up-item my-1.5">
+                <div class="max-w-[70%] bubble-received-premium px-4 py-2.5 shadow-sm text-xs relative">
                   <span class="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 mb-1 block uppercase tracking-wide">${pushName}</span>
                   ${messageBody}
                   <span class="flex items-center justify-end gap-1 text-[7px] text-slate-400 dark:text-slate-500 mt-1 font-mono">${timeStr}</span>

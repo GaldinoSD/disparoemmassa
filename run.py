@@ -10,6 +10,7 @@ def install_dependencies():
         import uvicorn
         import sqlalchemy
         import requests
+        import multipart
         print("[ OK ] Todas as dependencias ja estao instaladas.")
     except ImportError:
         print("Instalando dependencias ausentes do requirements.txt via pip...")
